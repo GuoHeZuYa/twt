@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twt.open.dao.user.AssistantStudentRelationDao">
+    <select id="getManagedStudentsByAssistantUserNumber" resultType="java.lang.String">
+        SELECT student_user_number FROM open_assistant_student_relation
+        WHERE assistant_user_number=#{userNumber};
+    </select>
+
+    <select id="getAllAssistantUserNumber" resultType="java.lang.String">
+        SELECT DISTINCT assistant_user_number FROM open_assistant_student_relation;
+    </select>
+
+    <select id="getAllUserNumber" resultType="String">
+        SELECT DISTINCT student_user_number FROM open_assistant_student_relation
+        WHERE student_user_number != '*';
+    </select>
+</mapper>

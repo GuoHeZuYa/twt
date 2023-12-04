@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twt.open.dao.commoninfo.MajorDao">
+    <select id="listAllMajors" resultType="MajorDto">
+        SELECT a.id AS id, a.name AS name,
+        a.code AS code, b.name AS departmentName, b.code AS departmentCode
+        FROM open_major AS a INNER JOIN open_department AS b ON a.department_id=b.id;
+    </select>
+
+    <select id="listMajorsByDepartmentId" resultType="Major">
+        SELECT * FROM open_major WHERE department_id=#{departmentId};
+    </select>
+
+    <insert id="addMajor">
+        INSERT INTO open_major(`name`, code, department_id) VALUES(#{name},#{code},#{departmentId});
+    </insert>
+
+    <update id="updateMajor">
+        UPDATE open_major SET `name`=#{name}, code=#{code},
+        department_id=#{departmentId}, updated_at=CURRENT_TIMESTAMP WHERE id=#{id};
+    </update>
+
+    <select id="getMajorById" resultType="Major">
+        SELECT * FROM open_major WHERE id=#{id};
+    </select>
+</mapper>

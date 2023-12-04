@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twt.open.dao.notification.HeSuanNoticeDao">
+    <select id="getUserNumbers" resultType="String">
+        SELECT usernumber FROM open_he_suan_notice WHERE campus = #{campus} AND methodtype = #{methodtype} AND type = #{type};
+    </select>
+    <insert id="insertHeSuanNotificationLog">
+        INSERT INTO open_he_suan_notice_log (operator, title, content, url, percentage, campus, type, startTime, endTime, createdAt) VALUES (
+            #{heSuanNotification.operator},
+            #{heSuanNotification.title},
+            #{heSuanNotification.content},
+            #{heSuanNotification.url},
+            #{heSuanNotification.percentage},
+            #{heSuanNotification.campus},
+            #{heSuanNotification.type},
+            #{heSuanNotification.startTime},
+            #{heSuanNotification.endTime},
+            CURRENT_TIMESTAMP
+        );
+    </insert>
+    <select id="checkHeSuan" resultType="String">
+        SELECT usernumber FROM open_he_suan_notice WHERE campus = #{campus} AND methodtype = #{methodtype} AND type = #{type};
+    </select>
+</mapper>

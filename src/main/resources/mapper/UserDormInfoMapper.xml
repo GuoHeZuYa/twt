@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twt.open.dao.user.UserDormInfoDao">
+
+<!--    &lt;!&ndash; 通用查询映射结果 &ndash;&gt;-->
+    <resultMap id="BaseResultMap" type="cn.twt.open.pojo.user.UserDormInfo">
+        <id column="student_number" property="studentNumber" />
+        <result column="name" property="name" />
+        <result column="gender" property="gender" />
+        <result column="ID_number" property="idNumber" />
+        <result column="collage" property="collage" />
+        <result column="major" property="major" />
+        <result column="class" property="classNum" />
+        <result column="area" property="area" />
+        <result column="building" property="building" />
+        <result column="floor" property="floor" />
+        <result column="room" property="room" />
+        <result column="bed" property="bed" />
+    </resultMap>
+
+    <select id="getDormInfoByUserNumber" resultType="UserDormInfoDto">
+        SELECT area, building, floor, room, bed FROM open_student_dorm_info WHERE student_number=#{userNumber};
+    </select>
+
+</mapper>

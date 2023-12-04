@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twt.open.dao.notification.NotificationDao">
+    <insert id="insertNotificationLog">
+        INSERT INTO open_notification_log (operator, title, content, url, status) VALUES (
+        #{notification.operator},#{notification.title},#{notification.content},#{notification.url},#{status}
+        );
+    </insert>
+
+    <insert id="insertNotification">
+        INSERT INTO open_notification (operator, target_user, title, content, url)
+        VALUES
+        <foreach collection="userNumbers" item="user" index="index" separator=",">
+            (#{notification.operator},#{user},#{notification.title},#{notification.content},#{notification.url})
+        </foreach>
+    </insert>
+
+    <insert id="insertNotification2All">
+        INSERT INTO open_notification (operator, target_user, title, content, url)
+        VALUES (#{notification.operator},#{notification.targetUser},#{notification.title},
+        #{notification.content},#{notification.url});
+    </insert>
+
+    <select id="getNotificationByUserNumber" resultType="NotificationDto">
+        SELECT * FROM open_notification WHERE target_user=#{userNumber} OR target_user='all' ORDER BY created_at DESC;
+    </select>
+</mapper>

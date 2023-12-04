@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twt.open.dao.commoninfo.ReturnSchoolDao">
+    <insert id="insertOneRecord" parameterType="cn.twt.open.pojo.commoninfo.ReturnSchoolInfo">
+        INSERT INTO open_return_school_info
+        (user_number, grade, stu_type, department, major, province_name, city_name, region_name,
+        address, longitude, latitude, health_code_url, travel_code_url, cur_status, temperature, upload_at) VALUES (
+        #{rs.userNumber},#{rs.grade},#{rs.stuType},#{rs.department},#{rs.major},#{rs.provinceName},
+        #{rs.cityName},#{rs.regionName},#{rs.address},#{rs.longitude},#{rs.latitude},#{rs.healthCodeUrl},#{rs.travelCodeUrl},
+        #{rs.curStatus},#{rs.temperature},#{rs.uploadAt}
+        );
+    </insert>
+    
+    <select id="fetchRecordByUserNumber" resultType="cn.twt.open.pojo.commoninfo.ReturnSchoolInfo">
+        SELECT * FROM open_return_school_info WHERE user_number=#{userNumber} ORDER BY upload_at;
+    </select>
+
+    <select id="fetchLatestRecordByUserNumber" resultType="cn.twt.open.pojo.commoninfo.ReturnSchoolInfo">
+        SELECT * FROM open_return_school_info WHERE user_number=#{userNumber} ORDER BY upload_at DESC LIMIT 1;
+    </select>
+    <select id="getRecordByUserNumberList" resultType="cn.twt.open.pojo.commoninfo.ReturnSchoolInfo">
+        SELECT * FROM open_return_school_info WHERE user_number IN
+        <foreach collection="userNumbers" item="userNumber" open="(" close=")" separator=",">
+            #{userNumber}
+        </foreach>
+    </select>
+    <select id="getTodayStudents" resultType="java.lang.String">
+        SELECT user_number FROM open_return_school_info WHERE
+        upload_at BETWEEN #{startTime} AND #{endTime};
+    </select>
+
+    <select id="getRecordByUserNumberListAndDate" resultType="cn.twt.open.pojo.commoninfo.ReturnSchoolInfo">
+        SELECT * FROM
+        (SELECT * FROM open_return_school_info
+        <where>
+            user_number IN
+            <foreach collection="userNumbers" item="userNumber" open="(" close=")" separator=",">
+                #{userNumber}
+            </foreach>
+            AND
+            (upload_at BETWEEN #{startTime} AND #{endTime}) ORDER BY upload_at DESC
+        </where>
+        ) AS t
+        GROUP BY user_number;
+    </select>
+</mapper>

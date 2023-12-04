@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twt.open.dao.user.UserDao">
+    <select id="queryUserInfo" resultType="cn.twt.open.pojo.user.UserDo">
+        SELECT
+        a.user_number as user_number,
+        a.token as token,
+        a.nickname as nickname,
+        a.telephone as telephone,
+        a.email as email,
+        a.role as role,
+        b.realname as realname,
+        b.gender as gender,
+        b.campus as campus,
+        b.id_number as id_number,
+        e.`name` as stu_type,
+        c.`name` as department,
+        d.`name` as major,
+        b.avatar as avatar,
+        f.area as area,
+        f.building as building,
+        f.floor as floor,
+        f.room as room,
+        f.bed as bed
+        FROM open_user as a
+        INNER JOIN open_userinfo as b ON a.user_number=b.user_number
+        LEFT JOIN open_student_dorm_info as f ON a.user_number=f.student_number
+        LEFT JOIN open_department as c ON c.id=b.department_id
+        LEFT JOIN open_major as d ON d.id=b.major_id
+        LEFT JOIN open_type as e ON e.id=b.stu_type
+        <where>
+            <if test="account != null">
+                AND a.user_number=#{account}
+            </if>
+            <if test="stuType != null">
+                AND b.stu_type=#{stuType}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateUserInfo">
+        UPDATE open_user
+        <trim prefix="set" suffixOverrides=",">
+            <if test="dto.telephone != ''">telephone=#{dto.telephone},</if>
+            <if test="dto.email != ''">email=#{dto.email},</if>
+            updated_at=#{dto.updatedAt}
+        </trim>
+        WHERE user_number=#{userNumber};
+    </update>
+
+    <select id="getUserType" resultType="StudentType">
+        SELECT * FROM open_type AS a WHERE id IN
+        (SELECT stu_type FROM open_userinfo WHERE id_number=
+        (SELECT id_number FROM open_userinfo WHERE user_number=#{userNumber})
+        AND user_number!=#{userNumber}
+        AND created_at > (SELECT created_at FROM open_userinfo WHERE user_number=#{userNumber}))
+        LIMIT 1;
+
+
+    </select>
+
+    <resultMap id="newUserInfo" type="Map">
+        <result column="user_number" jdbcType="VARCHAR" property="userNumber"/>
+        <result column="role" jdbcType="INTEGER" property="role"/>
+    </resultMap>
+    <select id="getUserNewNumber" resultMap="newUserInfo">
+        SELECT a.user_number AS user_number, b.role AS role FROM open_userinfo AS a, open_user AS b WHERE
+        b.user_number=#{userNumber} AND
+        id_number=(SELECT id_number FROM open_userinfo WHERE user_number=#{userNumber})
+        AND stu_type=#{typeId};
+    </select>
+
+    <resultMap id="getMyChangeMajorMap" type="ChangeMajorDto">
+        <id property="id" column="id"/>
+        <result property="userNumber" column="user_number"/>
+        <result property="username" column="username"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <association property="sourceDepartment" column="source_department" select="cn.twt.open.dao.commoninfo.DepartmentDao.getDepartmentById"/>
+        <association property="sourceMajor" column="source_major" select="cn.twt.open.dao.commoninfo.MajorDao.getMajorById"/>
+        <association property="destDepartment" column="dest_department" select="cn.twt.open.dao.commoninfo.DepartmentDao.getDepartmentById"/>
+        <association property="destMajor" column="dest_major" select="cn.twt.open.dao.commoninfo.MajorDao.getMajorById"/>
+    </resultMap>
+    <select id="getMyChangeMajor" resultMap="getMyChangeMajorMap">
+        SELECT * FROM open_apply_change_major WHERE user_number=#{userNumber};
+    </select>
+
+    <select id="getUnPassedApply" resultType="ChangeMajor">
+        SELECT * FROM open_apply_change_major WHERE user_number=#{userNumber} AND status=0;
+    </select>
+
+    <select id="queryBasicInfo" resultType="User">
+        SELECT * FROM open_userinfo WHERE user_number=#{userNumber};
+    </select>
+
+    <insert id="changeMajor">
+        INSERT INTO open_apply_change_major(user_number, username, source_department, source_major, dest_department, dest_major)
+        VALUES(#{userNumber},#{username},#{sourceDepartmentId},#{sourceMajorId},#{destDepartmentId},#{destMajorId});
+    </insert>
+
+    <update id="updateUserPhone">
+        UPDATE open_user SET telephone=#{phone}, updated_at=CURRENT_TIMESTAMP WHERE user_number=#{userNumber};
+    </update>
+
+    <update id="updateUserEmail">
+        UPDATE open_user SET email=#{email}, updated_at=CURRENT_TIMESTAMP WHERE user_number=#{userNumber};
+    </update>
+
+    <update id="updateUsername">
+        UPDATE open_user SET nickname=#{username} WHERE user_number=#{userNumber};
+    </update>
+
+    <select id="getIdNumberCount" resultType="Integer">
+        SELECT COUNT(*) FROM open_userinfo WHERE id_number=#{idNumber};
+    </select>
+
+    <select id="countUserByUserNumber" resultType="Integer">
+        SELECT COUNT(user_number) FROM open_userinfo WHERE user_number=#{userNumber};
+    </select>
+
+    <insert id="createUser">
+        INSERT INTO open_userinfo(user_number,realname,gender,department_id,major_id,leave_school,stu_type,id_number,campus)
+        VALUES (#{user.userNumber},#{user.realname},#{user.gender},#{user.departmentId},
+        #{user.majorId},0,#{user.stuType},#{user.idNumber},#{user.campus});
+    </insert>
+
+    <update id="updateUser">
+        UPDATE open_userinfo
+        <trim prefix="set" suffixOverrides=",">
+            <if test="user.realname != null">realname=#{user.realname},</if>
+            <if test="user.campus != null">campus=#{user.campus},</if>
+            <if test="user.gender != null">gender=#{user.gender},</if>
+            <if test="user.departmentId != null">department_id=#{user.departmentId},</if>
+            <if test="user.majorId != null">major_id=#{user.majorId},</if>
+            <if test="user.leaveSchool != null">leave_school=#{user.leaveSchool},</if>
+            <if test="user.stuType != null">stu_type=#{user.stuType},</if>
+            <if test="user.idNumber != null">id_number=#{user.idNumber},</if>
+            updated_at=CURRENT_TIMESTAMP
+        </trim>
+        WHERE user_number=#{user.userNumber};
+    </update>
+
+    <select id="getSpecificUserNumber" resultType="String">
+        SELECT user_number FROM open_userinfo
+        <where>
+            <if test="filter.tmpGrade != null and filter.tmpGrade != ''">
+                user_number REGEXP #{filter.tmpGrade}
+            </if>
+            <if test="filter.departmentId != null and filter.departmentId.size()>0">
+                AND department_id IN
+                <foreach collection="filter.departmentId" item="dId" index="index" open="(" close=")" separator=",">
+                    #{dId}
+                </foreach>
+            </if>
+            <if test="filter.majorId != null and filter.majorId.size()>0">
+                AND major_id IN
+                <foreach collection="filter.majorId" item="mId" index="index" open="(" close=")" separator=",">
+                    #{mId}
+                </foreach>
+            </if>
+            <if test="filter.stuType != null and filter.stuType.size()>0">
+                AND stu_type IN
+                <foreach collection="filter.stuType" item="type" index="index" open="(" close=")" separator=",">
+                    #{type}
+                </foreach>
+            </if>
+            <if test="filter.campus != null and filter.campus != ''">
+                AND campus=#{filter.campus}
+            </if>
+        </where>
+    </select>
+    <select id="queryUserBaseInfo" resultType="cn.twt.open.pojo.user.User">
+        SELECT * FROM open_userinfo WHERE leave_school=0 AND user_number=#{userNumber};
+    </select>
+    <select id="batchQueryUserBaseInfo" resultType="cn.twt.open.pojo.user.User">
+        SELECT * FROM open_userinfo WHERE leave_school=0 AND user_number IN
+        <foreach collection="userNumbers" item="u" index="index" open="(" close=")" separator=",">
+            #{u}
+        </foreach>
+    </select>
+    <select id="queryUserByUserNumberAndIdNumber" resultType="cn.twt.open.pojo.user.User">
+        SELECT * FROM open_userinfo WHERE user_number=#{userNumber} AND id_number=#{idNumber} LIMIT 1;
+    </select>
+    <select id="queryIdNumberByStuNum" resultType="java.lang.String">
+        SELECT id_number FROM open_userinfo WHERE  user_number = #{userNumber} LIMIT 1;
+    </select>
+    <update id="updateUserAvatar" parameterType="java.lang.String">
+        UPDATE open_userinfo SET avatar=#{avatarUrl} WHERE user_number=#{userNumber};
+    </update>
+</mapper>

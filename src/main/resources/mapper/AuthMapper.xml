@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twt.open.dao.auth.AuthDao">
+    <delete id="strictDeleteUser">
+        DELETE FROM open_user WHERE user_number=#{userNumber};
+    </delete>
+    <select id="getUserCredentialByAccount" resultType="cn.twt.open.pojo.auth.Credential">
+        SELECT * FROM open_user WHERE user_number=#{account}
+        OR nickname=#{account}
+        OR telephone=#{account}
+        OR email=#{account} LIMIT 1;
+    </select>
+
+    <update id="updateUserToken">
+        UPDATE open_user SET token=#{token} WHERE user_number=#{userNumber};
+    </update>
+
+    <select id="getUserCount" resultType="Integer">
+        SELECT COUNT(*) FROM open_userinfo WHERE user_number=#{userNumber} AND id_number=#{idNumber};
+    </select>
+
+    <select id="getUserNumberCount" resultType="Integer">
+        SELECT COUNT(*) FROM open_user WHERE user_number=#{userNumber};
+    </select>
+
+    <select id="getUsernameCount" resultType="Integer">
+        SELECT COUNT(*) FROM open_user WHERE nickname=#{username};
+    </select>
+
+    <select id="getEmailCount" resultType="Integer">
+        SELECT COUNT(*) FROM open_user WHERE email=#{email};
+    </select>
+
+    <select id="getPhoneCount" resultType="Integer">
+        SELECT COUNT(*) FROM open_user WHERE telephone=#{phone};
+    </select>
+
+    <insert id="registerUser" parameterType="RegisterDto">
+        INSERT INTO open_user (user_number, nickname, password, email, telephone)
+        VALUES (#{dto.userNumber},#{dto.nickname},#{dto.password},#{dto.email},#{dto.phone});
+    </insert>
+
+    <update id="updateCredential">
+        UPDATE open_user SET user_number=#{userNumber}, token=#{token}, updated_at=CURRENT_TIMESTAMP
+        WHERE user_number=#{oldUserNumber};
+    </update>
+
+    <select id="getHeSuanGroup" resultType="cn.twt.open.pojo.user.UserHeSuanGroup">
+        SELECT * from open_he_suan_notice
+        where usernumber = #{usernumber};
+    </select>
+
+    <select id="checkHeSuan" resultType="cn.twt.open.pojo.notification.HeSuanNotification">
+        SELECT * from open_he_suan_notice_log
+        where type = #{type} and campus = #{campus}
+        and percentage=#{method} and starttime >= CURRENT_DATE;
+    </select>
+
+</mapper>

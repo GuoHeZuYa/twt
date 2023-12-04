@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twt.open.dao.notification.MessageDao">
+    <insert id="addMessage2AllUsers">
+        INSERT INTO open_message (operator, target_user, title, content, url)
+        VALUES (#{message.operator},'all',#{message.title},#{message.content},#{message.url});
+    </insert>
+
+    <insert id="addMessage2SomeUsers">
+        INSERT INTO open_message (operator, target_user, title, content, url)
+        VALUES
+        <foreach collection="users" item="user" index="index" separator=",">
+            (#{message.operator},#{user},#{message.title},#{message.content},#{message.url})
+        </foreach>
+    </insert>
+
+    <select id="getMessageByUserNumber" resultType="Message">
+        SELECT * FROM open_message WHERE target_user=#{userNumber} OR target_user='all' ORDER BY created_at DESC;
+    </select>
+
+    <select id="getHistoryMessage" resultType="Message">
+        SELECT * FROM open_message GROUP BY title, content ORDER BY created_at DESC;
+    </select>
+</mapper>

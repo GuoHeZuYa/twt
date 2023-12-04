@@ -1,0 +1,18 @@
+spring:
+  profiles:
+    active: production
+#    active: dev
+
+#
+
+#getui:
+#  appId: 43HGFmIKsnAmjrjDLr60X4
+#  appKey: lMfDbXITSXALHE5EtfZv6A
+#  masterSecret: WLVrpl4GFz7esi3AeyrYj
+
+
+apollo:
+  bootstrap:
+    enabled: true
+    eagerLoad:
+      enabled: true

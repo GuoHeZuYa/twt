@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twt.open.dao.commoninfo.ApplyDao">
+    <resultMap id="getAllApplicationMap" type="ChangeMajorDto">
+        <id property="id" column="id"/>
+        <result property="userNumber" column="user_number"/>
+        <result property="username" column="username"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <association property="sourceDepartment" column="source_department" select="cn.twt.open.dao.commoninfo.DepartmentDao.getDepartmentById"/>
+        <association property="sourceMajor" column="source_major" select="cn.twt.open.dao.commoninfo.MajorDao.getMajorById"/>
+        <association property="destDepartment" column="dest_department" select="cn.twt.open.dao.commoninfo.DepartmentDao.getDepartmentById"/>
+        <association property="destMajor" column="dest_major" select="cn.twt.open.dao.commoninfo.MajorDao.getMajorById"/>
+    </resultMap>
+    <select id="getAllApplication" resultMap="getAllApplicationMap">
+        SELECT * FROM open_apply_change_major WHERE dest_department=#{destDepartmentId} AND status=0;
+    </select>
+
+    <update id="updateUserInfo">
+        <if test="list!=null">
+            <foreach collection="list" item="item" open="" close="" separator=";">
+                UPDATE open_userinfo
+                <set>
+                    department_id=#{item.destDepartmentId},
+                    major_id=#{item.destMajorId},
+                    updated_at=CURRENT_TIMESTAMP
+                </set>
+                <where>
+                    user_number=#{item.userNumber}
+                </where>
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateApplyStatus">
+        <if test="list!=null">
+            <foreach collection="list" item="item" open="" close="" separator=";">
+                UPDATE open_apply_change_major
+                <set>
+                    status=#{status}
+                </set>
+                <where>
+                    user_number=#{item.userNumber} AND status=0
+                </where>
+            </foreach>
+        </if>
+    </update>
+
+    <insert id="addAnOperateLog">
+        INSERT INTO open_operation_log(id, operator_user, `action`) VALUES (#{id},#{userNumber}, #{action});
+    </insert>
+</mapper>

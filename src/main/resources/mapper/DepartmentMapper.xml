@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twt.open.dao.commoninfo.DepartmentDao">
+    <select id="listAllDepartment" resultType="DepartmentDto">
+        SELECT id, `name`, code FROM open_department;
+    </select>
+
+    <insert id="addDepartment">
+        INSERT INTO open_department(`name`,code) VALUES (#{name},#{code});
+    </insert>
+
+    <update id="updateDepartment">
+        UPDATE open_department SET `name`=#{name}, code=#{code}, updated_at=CURRENT_TIMESTAMP WHERE id=#{id};
+    </update>
+
+    <select id="getDepartmentById" resultType="Department">
+        SELECT * FROM open_department WHERE id=#{id};
+    </select>
+</mapper>

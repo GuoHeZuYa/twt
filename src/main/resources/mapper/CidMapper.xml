@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.twt.open.dao.notification.CidDao">
+    <select id="getAllCid" resultType="String">
+        SELECT cid FROM open_cid;
+    </select>
+    <select id="countUserNumber" resultType="Integer">
+        SELECT COUNT(user_number) FROM open_cid WHERE user_number=#{userNumber};
+    </select>
+    <insert id="insertCid">
+        INSERT INTO open_cid (user_number, cid) VALUES (#{userNumber},#{cid});
+    </insert>
+    <update id="updateCid">
+        UPDATE open_cid SET cid=#{cid} WHERE user_number=#{userNumber};
+    </update>
+    <select id="getSpecificCid" resultType="String">
+        SELECT cid FROM open_cid WHERE user_number IN (
+        SELECT user_number FROM open_userinfo
+        <where>
+            <if test="filter.tmpGrade != null and filter.tmpGrade != ''">
+                user_number REGEXP #{filter.tmpGrade}
+            </if>
+            <if test="filter.departmentId != null and filter.departmentId.size()>0">
+                AND department_id IN
+                <foreach collection="filter.departmentId" item="dId" index="index" open="(" close=")" separator=",">
+                    #{dId}
+                </foreach>
+            </if>
+            <if test="filter.majorId != null and filter.majorId.size()>0">
+                AND major_id IN
+                <foreach collection="filter.majorId" item="mId" index="index" open="(" close=")" separator=",">
+                    #{mId}
+                </foreach>
+            </if>
+            <if test="filter.stuType != null and filter.stuType.size()>0">
+                AND stu_type IN
+                <foreach collection="filter.stuType" item="type" index="index" open="(" close=")" separator=",">
+                    #{type}
+                </foreach>
+            </if>
+            <if test="filter.campus != null and filter.campus != ''">
+                AND campus=#{filter.campus}
+            </if>
+        </where>
+        );
+    </select>
+
+    <select id="getCidByUserNumber" resultType="String">
+        SELECT cid FROM open_cid WHERE user_number IN
+        <foreach collection="userNumbers" index="index" item="userNumber" open="(" separator="," close=")">
+            #{userNumber}
+        </foreach>
+    </select>
+
+    <select id="getCidBySingleUserNumber" resultType="String">
+        SELECT cid FROM open_cid WHERE user_number=#{userNumber}
+    </select>
+
+    <select id="getHistoryNotification" resultType="cn.twt.open.pojo.notification.Notification">
+        SELECT * FROM open_notification_log
+        where operator != '3019244343'
+        ORDER BY created_at DESC
+    </select>
+
+</mapper>
